@@ -1,42 +1,38 @@
-const formData = { email: '', message: '' };
+import iziToast from "izitoast";
+import "izitoast/dist/css/iziToast.min.css";
 
-const form = document.querySelector('.feedback-form');
-const emailInput = form.querySelector('input[name="email"]');
-const messageTextarea = form.querySelector('textarea[name="message"]');
+const form = document.querySelector('.form');
 
-const STORAGE_KEY = 'feedback-form-state';
-
-const saveToLocalStorage = () => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-};
-
-const loadFromLocalStorage = () => {
-  const savedData = localStorage.getItem(STORAGE_KEY);
-  if (savedData) {
-    Object.assign(formData, JSON.parse(savedData));
-    emailInput.value = formData.email;
-    messageTextarea.value = formData.message;
-  }
-};
-
-document.addEventListener('DOMContentLoaded', loadFromLocalStorage);
-
-form.addEventListener('input', event => {
-  formData[event.target.name] = event.target.value;
-  saveToLocalStorage();
-});
-
-form.addEventListener('submit', event => {
+form.addEventListener('submit', function(event) {
   event.preventDefault();
 
-  if (!formData.email || !formData.message) {
-    alert('Fill please all fields');
-    return;
-  }
+  const delay = parseInt(form.delay.value, 10);
+  const state = form.state.value;
+  form.reset()
+  
+  const createPromise = (delay, state) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (state === 'fulfilled') {
+          resolve(delay);
+        } else {
+          reject(delay);
+        }
+      }, delay);
+    });
+  };
 
-  console.log('Submitted data:', formData);
-
-  form.reset();
-  Object.keys(formData).forEach(key => (formData[key] = ''));
-  localStorage.removeItem(STORAGE_KEY);
+  createPromise(delay, state)
+    .then((delay) => {
+      iziToast.show({
+        message: `✅ Fulfilled promise in ${delay}ms`,
+        color: 'green'
+      });
+    })
+    .catch((delay) => {
+      iziToast.show({
+        message: `❌ Rejected promise in ${delay}ms`,
+        color: 'red'
+      });
+    });
 });
