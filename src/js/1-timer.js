@@ -55,7 +55,6 @@ const setTimer = () => {
       input.disabled = false;
       return;
     }
-
     const convertedTime = convertMs(timeRemaining);
     updateTimer(convertedTime);
   }, 1000);
